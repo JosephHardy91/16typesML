@@ -1,0 +1,2 @@
+cluster users based on the intuition,thinking,feeling,sensing axes
+find out each user's most used words
