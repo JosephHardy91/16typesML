@@ -32,16 +32,17 @@ def split_on_punctuation(word_list):
 
 excludedWords = [y.strip().lower() for y in open('../data/wordsToExclude.txt', 'r').readlines()] + [str(num) for num in
                                                                                                  range(0, 100)]
+if __name__=="__main__":
 
-most_common_words = Counter()
-for userID in post_dictionary:
-    for post in post_dictionary[userID]:
-        if post not in EXCLUDED_KEYS:
-            words = most_common_words.update(
-                Counter(split_on_punctuation(post_dictionary[userID][post]['content'].split())))
+    most_common_words = Counter()
+    for userID in post_dictionary:
+        for post in post_dictionary[userID]:
+            if post not in EXCLUDED_KEYS:
+                words = most_common_words.update(
+                    Counter(split_on_punctuation(post_dictionary[userID][post]['content'])))
 
-print len(most_common_words)
+    print len(most_common_words)
 
-with open('../output/wordFrequencies.csv', 'w') as wordFrequencies:
-    for word in sorted(most_common_words.keys(), key=lambda x: most_common_words[x], reverse=True):
-        wordFrequencies.write(word + "," + str(most_common_words[word]) + "\n")
+    with open('../output/wordFrequencies.csv', 'w') as wordFrequencies:
+        for word in sorted(most_common_words.keys(), key=lambda x: most_common_words[x], reverse=True):
+            wordFrequencies.write(word + "," + str(most_common_words[word]) + "\n")
