@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 print "Getting data"
 post_dictionary = defaultdict(lambda: defaultdict(dict))
-with open("../data/scrape10152016.txt", "r") as scrapedData:
+with open("D:/Documents/PythonProjects/sixteentypesML/data/scrape10152016.txt", "r") as scrapedData:
     textContent = scrapedData.read()
     posts = textContent.split("===============\n")[1:]
     for post in tqdm(posts):
@@ -36,13 +36,21 @@ with open("../data/scrape10152016.txt", "r") as scrapedData:
 #     most_common_name = Counter(
 #         [post_dictionary[userID][post]['username'] for post in post_dictionary[userID]]).most_common()
 #     post_dictionary[userID].update({'username': most_common_name})
-typeLines = [x.split(",") for x in open("../data/usernames.csv", "r").readlines()]
+typeLines = [x.split(",") for x in
+             open("D:/Documents/PythonProjects/sixteentypesML/data/usernames.csv", "r").readlines()]
 type_dictionary = dict([(x[1].lower().strip(), x[2].strip()) for x in typeLines[1:] if x[2].strip() != "???"])
 
-print "Getting types"
-for userID in tqdm(post_dictionary.keys()):
-    for post in post_dictionary[userID]:
-        if post_dictionary[userID][post]['username'].lower() in type_dictionary:
-            post_dictionary[userID].update({'username': post_dictionary[userID][post]['username'].lower(),
-                                            'type': type_dictionary[post_dictionary[userID][post]['username'].lower()]})
+# print "Getting types"
+type_list = []
+for userID in post_dictionary.keys():
+    for post_date in post_dictionary[userID]:
+        if post_dictionary[userID][post_date]['username'].lower() in type_dictionary:
+            type_ = type_dictionary[post_dictionary[userID][post_date]['username'].lower()]
+            post_dictionary[userID].update({'username': post_dictionary[userID][post_date]['username'].lower(),
+                                            'type': type_})
+            type_list.append(type_)
             break
+
+unique_type_list = list(set(type_list))
+
+# print post_dictionary[post_dictionary.keys()[0]]
