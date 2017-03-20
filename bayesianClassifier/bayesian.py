@@ -10,11 +10,13 @@ from nltk import NaiveBayesClassifier
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from random import shuffle, random
+from random import shuffle
 
 try:
     import cPickle as pickle
 except:
     import pickle
+
 tokenizer = RegexpTokenizer(r'\w+')
 stopset = stopwords.words('english')
 filteredWords = set(stopset + excludedWords)
@@ -161,7 +163,8 @@ for cur_type in tqdm(range(1)):
             for post in post_dictionary[userID]:
                 if post not in EXCLUDED_KEYS:
                     post_words = list(tokenizer.tokenize(post_dictionary[userID][post]['content']))
-                    train_set.append(({word:count for word,count in Counter(post_words).items() if count > 1 and len(word)>2}, cur_dict[post_dictionary[userID]["type"]]))
+                    train_set.append(({word: count for word, count in Counter(post_words).items() if
+                                       count > 1 and len(word) > 2}, cur_dict[post_dictionary[userID]["type"]]))
 
                     # word.lower() for word in post_words if
                     # word.lower() not in filteredWords
@@ -170,6 +173,24 @@ for cur_type in tqdm(range(1)):
     # for trial in tqdm(range(25)):
     # if t_i==0:
     shuffle(train_set, lambda: r)
+print "Getting type post entries"
+train_set = []
+for userID in tqdm(post_dictionary.keys()):
+    if "type" in post_dictionary[userID]:
+        for post in post_dictionary[userID]:
+            if post not in EXCLUDED_KEYS:
+                post_words = list(tokenizer.tokenize(post_dictionary[userID][post]['content']))
+                train_set.append((Counter(post_words), post_dictionary[userID]["type"]))
+
+                # word.lower() for word in post_words if
+                # word.lower() not in filteredWords
+# print train_set[0]
+best_accuracy = 0.0
+best_model = None
+best_train_set, best_test_set = None, None
+print "Running trials"
+for trial in tqdm(range(25)):
+    shuffle(train_set)
     training_set, test_set = train_set[:len(train_set) / 2], \
                              train_set[len(train_set) / 2:]
 
@@ -187,8 +208,7 @@ for cur_type in tqdm(range(1)):
 while True:
     print classifier.classify(Counter(tokenizer.tokenize(raw_input())))
 
-for fname, obj in [("Type", best_type), ("Model", best_model), ("TrainSet", best_train_set), ("TestSet", best_test_set),
-                   ("Accuracy", best_accuracy)]:
-    with open('../output/bayesFrequency{0}.pickle'.format(fname), 'wb') as bFC:
-        data_string = pickle.dumps(obj)
-        bFC.write(data_string)
+# for fname, obj in [("Model", best_model), ("TrainSet", best_train_set), ("TestSet", best_test_set),("Accuracy", best_accuracy)]:
+#     with open('../output/bayesFrequency{0}.pickle'.format(fname), 'wb') as bFC:
+#         data_string = pickle.dumps(obj)
+#         bFC.write(data_string)
