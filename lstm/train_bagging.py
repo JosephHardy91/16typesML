@@ -96,21 +96,37 @@ import matplotlib.pyplot as plt
 # scores = []
 # for n_estimators_exp in tqdm(range(1, 5)):
 # n_estimators = 10 * 10 ** n_estimators_exp
-n_forests = 2
-forest_data = np.zeros((tr_X.shape[0], n_forests, 16))
+n_forests = 1
+forest_data = np.zeros((tr_X.shape[0], 1, 16))
 # forest_data[:, n_forests] = y_tr[:,np.newaxis]
-for forest_num in tqdm(range(n_forests)):
-    if forest_num < n_forests / 2.0:
-        criteron = 'gini'
-    else:
-        criteron = 'entropy'
-    forest = ExtraTreesClassifier(criterion=criteron, n_estimators=1000, random_state=1, n_jobs=-1)
+# for forest_num in tqdm(range(n_forests)):
+#     if forest_num < n_forests / 2.0:
+#         criteron = 'gini'
+#     else:
+#         criteron = 'entropy'
+acc = []
+for n_est in range(5, 100, 5):
+    forest = ExtraTreesClassifier(criterion='gini', n_estimators=10, random_state=1, n_jobs=-1)
 
     forest.fit(tr_X, y_tr)
-    forest_data[:, forest_num, :] = forest.predict_proba(tr_X)
-    print np.sum(forest.predict(tr_X) == y_tr) / float(tr_X.shape[0])  # 90.36%
+    forest_data[:, 0, :] = forest.predict_proba(tr_X)
+    acc.append((n_est, np.sum(forest.predict(tr_X) == y_tr) / float(tr_X.shape[0])))  # 90.36%
+
+steps, results = zip(*acc)
+plt.plot(steps, results)
+plt.show()
+
+for step, result in acc:
+    if result >= 0.90:
+        forest = ExtraTreesClassifier(criterion='gini', n_estimators=step, random_state=1, n_jobs=-1)
+
+        forest.fit(tr_X, y_tr)
+        forest_data[:, 0, :] = forest.predict_proba(tr_X)
+        print np.sum(forest.predict(tr_X) == y_tr) / float(tr_X.shape[0])  # 90.36%
+        break
 
 pickle.dump(forest_data, open('forested_data.pickle', 'wb'), protocol=2)
+pickle.dump(forest, open('forest_model.pickle', 'wb'), protocol=2)
 pickle.dump(y_tr, open('y_train.pickle', 'wb'), protocol=2)
 pickle.dump(all_type_le, open('all_type_le.pickle', 'wb'), protocol=2)
 pickle.dump(unique_type_list, open('u_type_list.pickle', 'wb'), protocol=2)
